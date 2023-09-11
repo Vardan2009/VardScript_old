@@ -208,7 +208,9 @@ def doASSIGN(name,val):
 
 def getVARIABLE(varname):
     varname = varname[4:]
+   # print("finding variable "+varname)
     if varname in symbols:
+        #print("output "+symbols[varname])
         return symbols[varname]
     else:
         print ("ERROR: Undefined Variable: "+varname)
@@ -267,7 +269,8 @@ def handle_while_condition(tokes, i):
     #print(operand1+" "+operand2)
     while int(var)< int(num):
             var+=1
-            symbols[tokes[i+1].split(":")[1]] = str(var)
+            symbols[tokes[i+1].split(":")[1]] = "NUM:"+str(var)
+            #print("running thru "+ str(tokes[i+5:tokes.index("ENDWHILE", i+5)]))
             run_parser(tokes[i+5:tokes.index("ENDWHILE", i+5)])
 
 def run_parser(tokes):
