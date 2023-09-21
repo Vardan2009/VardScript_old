@@ -1,5 +1,8 @@
 from sys import *
-
+import os
+import time
+import sys
+import datetime
 toks = []
 numstack =[]
 symbols = {}
@@ -21,6 +24,7 @@ def run_lexer(filecontent):
     comment = 0
     varStart = 0
     n = ""
+    toks = []
     filecontent = list(filecontent)
     for char in filecontent:
         tok +=char
@@ -166,6 +170,18 @@ def run_lexer(filecontent):
         elif tok == "input":
             toks.append("INPUT")
             tok =""
+        elif tok == "time":
+            toks.append("TIME")
+            tok =""
+        elif tok == "os":
+            toks.append("OS")
+            tok =""
+        elif tok == "sleep":
+            toks.append("SLEEP")
+            tok =""
+        elif tok == "#import":
+            toks.append("IMPORT")
+            tok =""
         elif (tok == "0" or tok == "1" or tok == "2" or tok == "3" or tok == "4" or tok == "5" or tok == "6" or tok == "7" or tok == "8" or tok == "9") and state == 0:
             expr += tok
             tok = ""
@@ -202,6 +218,17 @@ def doPRINT(toPRINT,end):
     elif toPRINT[0:4] == "EXPR":
         toPRINT = evalExpr(toPRINT[5:])
     print(toPRINT,end=end)
+
+
+def doGET(toPRINT):
+    if toPRINT[0:6] == "STRING":
+        toPRINT = toPRINT[8:]
+        toPRINT = toPRINT[:-1]
+    elif toPRINT[0:3] == "NUM":
+        toPRINT = toPRINT[4:]
+    elif toPRINT[0:4] == "EXPR":
+        toPRINT = evalExpr(toPRINT[5:])
+    return toPRINT
 
 def doASSIGN(name,val):
     symbols[name[4:]] = val
@@ -299,7 +326,6 @@ def run_parser(tokes):
         elif tokes[i][0:9] == "FUNC_NAME":
             run_parser(funcs[tokes[i][10:]])
             i+=1
-        
         elif tokes[i] + " " + tokes[i+1][0:6] == "PRINT STRING" or tokes[i] + " " + tokes[i+1][0:3] == "PRINT NUM" or tokes[i] + " " + tokes[i+1][0:4] == "PRINT EXPR"or tokes[i] + " " + tokes[i+1][0:3] == "PRINT VAR":
             if tokes[i+1][0:6] == "STRING":
                 doPRINT(tokes[i+1],"")
@@ -320,6 +346,18 @@ def run_parser(tokes):
             elif tokes[i+1][0:3] == "VAR":
                 doPRINT(getVARIABLE(tokes[i+1]),"\n")
             i+=2
+        elif tokes[i] + " "+tokes[i+1][0:6] == "TIME STRING":
+                print(datetime.datetime.now().strftime(doGET((tokes[i+1]))))
+                i+=2
+        elif tokes[i] + " "+tokes[i+1][0:6] == "OS STRING":
+                os.system(doGET(tokes[i+1]))
+                i+=2
+        elif tokes[i] + " "+tokes[i+1][0:3] == "SLEEP NUM":
+                time.sleep(int(doGET(tokes[i+1]))/1000)
+                i+=2
+        elif tokes[i] + " "+tokes[i+1][0:3] == "SLEEP VAR":
+                time.sleep(int(doGET(getVARIABLE(tokes[i+1])))/1000)
+                i+=2
         elif tokes[i] + " "+tokes[i+1][0:9] == "FUNC FUNC_NAME":
                 inFunc = 1
                 funcs[tokes[i+1][10:]] = tokes[i+2:tokes.index("ENDFUNC",i)]
@@ -372,4 +410,6 @@ def run():
     data = open_file(argv[1])
     tokens = run_lexer(data)
     run_parser(tokens)
+
 run()
+
