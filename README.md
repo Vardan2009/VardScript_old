@@ -129,4 +129,49 @@ parse source_variable (t_num or t_str)
 parse &number t_num
 typeof &number : t_num is now a numerical variable
 ```
+# 'os' Statement
+The VardScript programming language provides a convenient way to execute operating system (OS) commands directly from your code. This feature allows you to interact with the underlying operating system and execute various commands, such as running shell commands, scripts, or system utilities.
+
+## Syntax
+
+```
+os "command"
+```
+
+## Example
+
+```
+:example, printing text
+os "echo Hello World!" :if using Windows
+
+
+:example, clearing screen
+os "cls" :if using windows
+os "clear" :if using linux
+```
+
+# Thread Sleep
+the 'sleep' statement delays the execution of the code
+## Syntax
+```
+sleep *amount*
+```
+## Example
+```
+sleep 100
+ln_out "e"
+```
+
+# Get System Time
+the 'time' statement gets the system time
+
+```
+time "format"
+```
+## Example
+```
+time "%H:%M"
+```
+
+
 ### Created by Vardan2009
