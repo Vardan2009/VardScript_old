@@ -1,3 +1,6 @@
+import math
+import random
+import re
 from sys import *
 import os
 import time
@@ -29,7 +32,7 @@ def run_lexer(filecontent):
     filecontent = list(filecontent)
     for char in filecontent:
         tok +=char
-      
+        #print(tok)
         if comment ==1:
           
             if char == "\n":
@@ -174,13 +177,16 @@ def run_lexer(filecontent):
         elif tok == "os":
             toks.append("OS")
             tok =""
+        elif tok == "exit":
+            toks.append("EXIT")
+            tok =""
         elif tok == "sleep":
             toks.append("SLEEP")
             tok =""
         elif tok == "#import":
             toks.append("IMPORT")
             tok =""
-        elif (tok == "0" or tok == "1" or tok == "2" or tok == "3" or tok == "4" or tok == "5" or tok == "6" or tok == "7" or tok == "8" or tok == "9") and state == 0:
+        elif (tok == "0" or tok == "1" or tok == "2" or tok == "3" or tok == "4" or tok == "5" or tok == "6" or tok == "7" or tok == "8" or tok == "9" or tok == "nrand" or re.search(r'rand (\d+),(\d+)', tok)) and state == 0:
             expr += tok
             tok = ""
         elif (tok == "+" or tok == "-" or tok == "*" or tok == "/" or tok == "(" or tok == ")" or tok =="%") and state ==0:
@@ -204,7 +210,14 @@ def run_lexer(filecontent):
     #print(toks)
     return toks
 
+def replace_random(match):
+    x = int(match.group(1))
+    y = int(match.group(2))
+    return str(random.randint(x, y))
+
 def evalExpr(expr):
+  expr = expr.replace("nrand",str(random.random()))
+  expr = re.sub(r'rand (\d+),(\d+)',replace_random,expr)
   return eval(expr)
 
 def doPRINT(toPRINT,end):
@@ -212,7 +225,7 @@ def doPRINT(toPRINT,end):
         toPRINT = toPRINT[8:]
         toPRINT = toPRINT[:-1]
     elif toPRINT[0:3] == "NUM":
-        toPRINT = toPRINT[4:]
+        toPRINT =evalExpr(toPRINT[4:])
     elif toPRINT[0:4] == "EXPR":
         toPRINT = evalExpr(toPRINT[5:])
     print(toPRINT,end=end)
@@ -223,13 +236,16 @@ def doGET(toPRINT):
         toPRINT = toPRINT[8:]
         toPRINT = toPRINT[:-1]
     elif toPRINT[0:3] == "NUM":
-        toPRINT = toPRINT[4:]
+        toPRINT = evalExpr(toPRINT[4:])
     elif toPRINT[0:4] == "EXPR":
         toPRINT = evalExpr(toPRINT[5:])
     return toPRINT
 
 def doASSIGN(name,val):
-    symbols[name[4:]] = val
+    if val.split(":")[0] == "NUM":
+        symbols[name[4:]] = "NUM:"+ str(evalExpr(val.split(":")[1]))
+    else:
+        symbols[name[4:]] = val
 
 def getVARIABLE(varname):
     varname = varname[4:]
@@ -328,6 +344,9 @@ def run_parser(tokes):
             i+=1
         elif tokes[i][0:9] == "FUNC_NAME":
             run_parser(funcs[tokes[i][10:]])
+            i+=1
+        elif tokes[i] == "EXIT":
+            exit()
             i+=1
         elif tokes[i] + " " + tokes[i+1][0:6] == "PRINT STRING" or tokes[i] + " " + tokes[i+1][0:3] == "PRINT NUM" or tokes[i] + " " + tokes[i+1][0:4] == "PRINT EXPR"or tokes[i] + " " + tokes[i+1][0:3] == "PRINT VAR":
             if tokes[i+1][0:6] == "STRING":

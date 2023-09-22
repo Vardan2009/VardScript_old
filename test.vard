@@ -1,14 +1,5 @@
-if 1==1 then
-	if 1==1 then
-		if 1==1 then
-			ln_out "h" :this is test
-		endif
-	endif
-endif
-if 1==1 then
-	if 1==1 then
-		if 1==1 then
-			ln_out "h" :this is test
-		endif
-	endif
-endif
+&e = rand 1,2
+
+ln_out &e
+ln_out &e
+
