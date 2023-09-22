@@ -142,9 +142,6 @@ def run_lexer(filecontent):
         elif tok == "endwhile":
             toks.append("ENDWHILE")
             tok =""
-        elif tok == "else":
-            toks.append("ELSE")
-            tok =""
         elif tok == "if":
             toks.append("IF")
             tok =""
@@ -248,7 +245,7 @@ def getINPUT(str,name):
     i = input(str[1:-1]+" ")
     symbols[name] = "STRING:\""+i+"\""
 
-def handle_if_condition(tokes, i):
+def handle_if_condition(tokes, i,end):
     condition_type1, operand1 = tokes[i+1].split(":")
     condition_type2, operand2 = tokes[i+3].split(":")
 
@@ -265,22 +262,13 @@ def handle_if_condition(tokes, i):
     #print("Comparing "+str(operand1)+" and "+str(operand2))
     if tokes[i+2] == "EQEQ":
         if str(operand1) == str(operand2):
-            run_parser(tokes[i+5:tokes.index("ELSE", i+5)] if "ELSE" in tokes else tokes[i+5:tokes.index("ENDIF", i+5)])
-        else:
-            if "ELSE" in tokes:
-                run_parser(tokes[tokes.index("ELSE", i+5)+1:tokes.index("ENDIF", i+5)])
+            run_parser(tokes[i+5:end])
     elif tokes[i+2] == "GT":
         if int(operand1) > int(operand2):
-            run_parser(tokes[i+5:tokes.index("ELSE", i+5)] if "ELSE" in tokes else tokes[i+5:tokes.index("ENDIF", i+5)])
-        else:
-            if "ELSE" in tokes:
-                run_parser(tokes[tokes.index("ELSE", i+5)+1:tokes.index("ENDIF", i+5)])
+            run_parser(tokes[i+5:end])
     elif tokes[i+2] == "LT":
         if int(operand1)< int(operand2):
-            run_parser(tokes[i+5:tokes.index("ELSE", i+5)] if "ELSE" in tokes else tokes[i+5:tokes.index("ENDIF", i+5)])
-        else:
-            if "ELSE" in tokes:
-                run_parser(tokes[tokes.index("ELSE", i+5)+1:tokes.index("ENDIF", i+5)])
+            run_parser(tokes[i+5:end])
 
 
 #WHILE VAR UNTIL NUM THEN
@@ -295,21 +283,33 @@ def handle_while_condition(tokes, i):
     var = int(var)
     #print(operand1+" "+operand2)
     while int(var)< int(num):
+            var = getVARIABLE(tokes[i+1]).split(":")[1]
+            if tokes[i+3].split(":")[0] == "NUM":
+                num = tokes[i+3].split(":")[1]
+            elif tokes[i+3].split(":")[0] == "VAR":
+                num =getVARIABLE(tokes[i+3]).split(":")[1]
+            num = int(num)
+            var = int(var)
             var+=1
+            #print ("num =" + str(num))
+            #print ("var =" + str(var))
             symbols[tokes[i+1].split(":")[1]] = "NUM:"+str(var)
             #print("running thru "+ str(tokes[i+5:tokes.index("ENDWHILE", i+5)]))
             run_parser(tokes[i+5:tokes.index("ENDWHILE", i+5)])
 
 def run_parser(tokes):
     inIf = 0
+    lInd = 0
     inFunc = 0
     i = 0
     inWhile = 0
-
+    #print(tokes)
     while (i<len(tokes)):
         #print(toks[i] +" "+ str(i)+" "+str(len(tokes)))
         if tokes[i] == "ENDIF":
-            inIf = 0
+            inIf -=1
+            if inIf<=0:
+                handle_if_condition(tokes, lInd,i)
             i+=1
         elif tokes[i] == "ENDWHILE":
             inWhile = 0
@@ -317,7 +317,7 @@ def run_parser(tokes):
         elif tokes[i] == "ENDFUNC":
             inFunc = 0
             i+=1
-        elif inIf==1:
+        elif inIf>=1:
             i+=1
         elif inWhile==1:
             i+=1
@@ -368,7 +368,7 @@ def run_parser(tokes):
             intval = intval[:-1]
             symbols[tokes[i+1].split(":")[1]] = "NUM:"+str(intval)
             i+=3
-        #parse %qaq t_str
+        #parse &test t_str
         elif tokes[i] + " "+tokes[i+1][0:3] == "TYPEOF VAR":
             print(getVARIABLE(tokes[i+1]).split(":")[0])
             i+=2
@@ -398,8 +398,9 @@ def run_parser(tokes):
             handle_while_condition(tokes, i)
             i+=5
         elif tokes[i] == "IF" and tokes[i+4] == "THEN":
-            inIf = 1
-            handle_if_condition(tokes, i)
+            if inIf == 0:
+                lInd = i
+            inIf +=1
             i += 5
         
     #print (symbols)
@@ -407,9 +408,21 @@ def run_parser(tokes):
 
 
 def run():
-    data = open_file(argv[1])
-    tokens = run_lexer(data)
-    run_parser(tokens)
+    if len(argv) < 2:
+        print("ERROR: No VardScript File Specified")
+        exit()
+    if os.path.exists(argv[1]):
+        root, extension = os.path.splitext(argv[1])
+        if extension == ".vard":
+            data = open_file(argv[1])
+            tokens = run_lexer(data)
+            run_parser(tokens)
+        else:
+            print("ERROR: Enter a .vard file")
+            exit() 
+    else:
+        print("ERROR: VardScript File Doesn't Exist")
+        exit() 
 
 run()
 
