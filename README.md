@@ -74,6 +74,7 @@ endif
 ```
 
 ## IF-ELSE Statement
+### WARNING: IF-ELSE STATEMENTS ARE TEMPORARILY REMOVED
 ```
 if 1==2 then
     ln_out "condition is true"
