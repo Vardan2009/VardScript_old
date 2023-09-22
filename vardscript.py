@@ -3,6 +3,7 @@ import os
 import time
 import sys
 import datetime
+
 toks = []
 numstack =[]
 symbols = {}
@@ -308,6 +309,8 @@ def run_parser(tokes):
         #print(toks[i] +" "+ str(i)+" "+str(len(tokes)))
         if tokes[i] == "ENDIF":
             inIf -=1
+            if inIf <0:
+                inIf = 0
             if inIf<=0:
                 handle_if_condition(tokes, lInd,i)
             i+=1
@@ -398,6 +401,7 @@ def run_parser(tokes):
             handle_while_condition(tokes, i)
             i+=5
         elif tokes[i] == "IF" and tokes[i+4] == "THEN":
+            #print(inIf)
             if inIf == 0:
                 lInd = i
             inIf +=1
