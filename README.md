@@ -174,5 +174,22 @@ time "format"
 time "%H:%M"
 ```
 
+# Generating Random Numbers
+In VardScript, rand x,y and nrand functions are used for generating random numbers
+
+## 'nrand' statement
+The 'nrand' statement generates a number from 0 to 1
+```
+&random = nrand
+ln_out &random
+```
+
+## 'rand' statement
+The 'rand' statement generates a number from a given range
+```
+&random = rand 1,10
+ln_out &random
+```
+
 
 ### Created by Vardan2009
