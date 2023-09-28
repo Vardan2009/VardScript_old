@@ -21,14 +21,8 @@ func askPlayer()
 	ln_out "2.Paper"
 	ln_out "3.Scissors"
 	input ":>" &player
-	parse &player t_num
-
-	if &player > 3 then
-		clearScreen()
-		ln_out "Rock Paper Scissors!"
-		ln_out "VardScript Sample Projects"
-
-		ln_out " "
+	parse &player t_num 
+	if &player >3 then
 		ln_out "Invalid Input!"
 		ln_out " "
 		ln_out "Your Turn:"
@@ -100,8 +94,46 @@ func compare()
 	if &opponent == 3 then
 		ln_out "Scissors"
 	endif
-endfunc
 
+
+	if &player == 1 then
+		if &opponent == 1 then
+			ln_out "Draw!"
+		endif
+		if &opponent == 2 then
+			ln_out "You Lose!"
+		endif
+		if &opponent == 3 then
+			ln_out "You Win!"
+		endif
+	endif
+
+	if &player == 2 then
+		if &opponent == 1 then
+			ln_out "You Win!"
+		endif
+		if &opponent == 2 then
+			ln_out "Draw!"
+		endif
+		if &opponent == 3 then
+			ln_out "You Lose!"
+		endif
+	endif
+
+	if &player == 3 then
+		if &opponent == 1 then
+			ln_out "You Lose!"
+		endif
+		if &opponent == 2 then
+			ln_out "You Win!"
+		endif
+		if &opponent == 3 then
+			ln_out "Draw!"
+		endif
+	endif
+
+
+endfunc
 
 :Game Structure
 askPlayer()
