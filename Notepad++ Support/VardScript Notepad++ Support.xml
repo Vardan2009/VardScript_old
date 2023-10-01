@@ -13,7 +13,7 @@
             <Keywords name="Numbers, suffix1"></Keywords>
             <Keywords name="Numbers, suffix2"></Keywords>
             <Keywords name="Numbers, range"></Keywords>
-            <Keywords name="Operators1">( ) == &gt; &lt; =</Keywords>
+            <Keywords name="Operators1">( ) == &gt; &lt; = $= [ ] + - / *</Keywords>
             <Keywords name="Operators2"></Keywords>
             <Keywords name="Folders in code1, open">while</Keywords>
             <Keywords name="Folders in code1, middle"></Keywords>
@@ -24,9 +24,9 @@
             <Keywords name="Folders in comment, open">func</Keywords>
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close">endfunc</Keywords>
-            <Keywords name="Keywords1">rand nrand typeof t_num t_str then</Keywords>
+            <Keywords name="Keywords1">rand nrand typeof t_num t_str then as</Keywords>
             <Keywords name="Keywords2"></Keywords>
-            <Keywords name="Keywords3">out ln_out</Keywords>
+            <Keywords name="Keywords3">out ln_out define</Keywords>
             <Keywords name="Keywords4"></Keywords>
             <Keywords name="Keywords5">until parse time os exit sleep #import</Keywords>
             <Keywords name="Keywords6"></Keywords>

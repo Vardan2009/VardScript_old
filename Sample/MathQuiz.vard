@@ -1,0 +1,43 @@
+:math quiz game written in VardScript
+:written by Vardan Petrosyan in 02.10.2023
+
+
+ln_out "write 'exit' to exit the game"
+
+&counter = 0
+
+while &counter until 2 then
+
+:generate random numbers
+
+&first = rand 1,10
+&second = rand 1,10
+
+: type out the question
+out &first  
+out " +"
+out " "
+out &second
+out " "
+input "=" &answer
+
+if &answer == "exit" then :if the player typed exit
+	exit
+endif 
+
+parse &answer t_num :parse the string to a numerical variable
+
+&realAnswer = [ &first + &second ]
+
+if &answer == &realAnswer then :if answer is equal to the sum of the numbers, type correct
+	ln_out "Correct!"
+endif
+
+if &answer $= &realAnswer then :if not equal, type wrong and the correct answer
+	ln_out "Wrong!"
+	out "Answer:"
+	out " "
+	ln_out &realAnswer
+endif 
+&counter = 0 :resetting the counter every time to make an infinite loop
+endwhile

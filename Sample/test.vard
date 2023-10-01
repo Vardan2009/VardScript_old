@@ -1,5 +1,0 @@
-&e = rand 1,2
-
-ln_out &e
-ln_out &e
-

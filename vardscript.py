@@ -10,9 +10,12 @@ import datetime
 toks = []
 numstack =[]
 symbols = {}
+definitions = {}
 funcs = {}
 
+
 def open_file(filename):
+
     data = open(filename,"r").read()
     data +="//EOF//"
     return data
@@ -33,18 +36,24 @@ def run_lexer(filecontent):
     for char in filecontent:
         tok +=char
         #print(tok)
+        #print (isexpr)
         if comment ==1:
-          
             if char == "\n":
                 comment =0
                 tok = ""
+        elif char == "]":
+                tok = ""
+                isexpr = 0
+        elif isexpr == 1:
+                expr+=tok
+                tok = ""
         elif tok == ":" and state == 0:
-                if expr != "" and isexpr ==1:
+                if expr != "":
                     toks.append("EXPR:"+expr)
                     expr = ""
-                elif expr != "" and isexpr ==0:
-                    toks.append("NUM:"+expr)
-                    var = ""
+                #elif expr != "" and isexpr ==0:
+                #    toks.append("NUM:"+expr)
+                #    var = ""
                 elif var !="":
                     toks.append("VAR:"+var)
                 var = ""
@@ -61,12 +70,12 @@ def run_lexer(filecontent):
             else:
                 tok = " "
         elif tok == "\n" or tok == "//EOF//":
-            if expr != "" and isexpr ==1:
+            if expr != "":
                 toks.append("EXPR:"+expr)
                 expr = ""
-            elif expr != "" and isexpr ==0:
-                toks.append("NUM:"+expr)
-                expr = ""
+            #elif expr != "" and isexpr ==0:
+            #    toks.append("NUM:"+expr)
+            #    expr = ""
             elif var !="":
                 toks.append("VAR:"+var)
                 var = ""
@@ -100,13 +109,16 @@ def run_lexer(filecontent):
                 toks.append("VAR:"+var)
                 var = ""
                 varStart = 0
+            
             if toks[-1] == "EQUALS":
                 toks[-1] = "EQEQ"
+            elif toks[-1] == "DOLLAR":
+                toks[-1] = "NEQ"
             else:
                 toks.append("EQUALS")
             tok = ""
         
-        elif tok =="&" and state ==0:
+        elif tok =="&" and state ==0 and isexpr == 0:
             varStart =1
             var+=tok
             tok = ""
@@ -136,6 +148,15 @@ def run_lexer(filecontent):
             tok =""
         elif tok == "out":
             toks.append("PRINT")
+            tok =""
+        elif tok == "define":
+            toks.append("DEFINE")
+            tok =""
+        elif tok == "as":
+            toks.append("AS")
+            tok =""
+        elif tok == "$":
+            toks.append("DOLLAR")
             tok =""
         elif tok == "endif":
             toks.append("ENDIF")
@@ -193,6 +214,21 @@ def run_lexer(filecontent):
             isexpr =1
             expr +=tok
             tok = ""
+        elif (tok == "[" and state==0):
+                isexpr =1
+                tok = ""
+        elif (tok == "]" and state==0):
+                if expr != "":
+                    toks.append("EXPR:"+expr)
+                    expr = ""
+                #elif expr != "" and isexpr ==0:
+                #    toks.append("NUM:"+expr)
+                #    expr = ""
+                elif var !="":
+                    toks.append("VAR:"+var)
+                    var = ""
+                    varStart = 0
+                tok = ""
         elif tok == "\t":
             tok = ""
         elif tok == "\"" or tok ==" \"":
@@ -218,6 +254,8 @@ def replace_random(match):
 def evalExpr(expr):
   expr = expr.replace("nrand",str(random.random()))
   expr = re.sub(r'rand (\d+),(\d+)',replace_random,expr)
+  for a in symbols:
+      expr = expr.replace(a,(getVARIABLE("VAR:"+str(a)))[4:])
   return eval(expr)
 
 def doPRINT(toPRINT,end):
@@ -254,7 +292,8 @@ def getVARIABLE(varname):
         #print("output "+symbols[varname])
         return symbols[varname]
     else:
-        print ("ERROR: Undefined Variable: "+varname)
+        #print ("ERROR: Undefined Variable: "+varname)
+        raise Exception("Undefined Variable: "+varname)
         return "ERROR: Undefined Variable: "+varname
         exit()
 
@@ -279,6 +318,9 @@ def handle_if_condition(tokes, i,end):
     #print("Comparing "+str(operand1)+" and "+str(operand2))
     if tokes[i+2] == "EQEQ":
         if str(operand1) == str(operand2):
+            run_parser(tokes[i+5:end])
+    if tokes[i+2] == "NEQ":
+        if str(operand1) != str(operand2):
             run_parser(tokes[i+5:end])
     elif tokes[i+2] == "GT":
         if int(operand1) > int(operand2):
@@ -315,6 +357,7 @@ def handle_while_condition(tokes, i):
             run_parser(tokes[i+5:tokes.index("ENDWHILE", i+5)])
 
 def run_parser(tokes):
+ try:
     inIf = 0
     lInd = 0
     inFunc = 0
@@ -325,10 +368,13 @@ def run_parser(tokes):
         #print(toks[i] +" "+ str(i)+" "+str(len(tokes)))
         if tokes[i] == "ENDIF":
             inIf -=1
+
+            if inIf == 0:
+                handle_if_condition(tokes, lInd,i)
+
             if inIf <0:
                 inIf = 0
-            if inIf<=0:
-                handle_if_condition(tokes, lInd,i)
+            
             i+=1
         elif tokes[i] == "ENDWHILE":
             inWhile = 0
@@ -402,6 +448,9 @@ def run_parser(tokes):
 
             symbols[tokes[i+1].split(":")[1]] = "STRING:\""+str(intval)+"\""
             i+=3
+        #elif tokes[i] + " "+tokes[i+1][0:6]+" "+tokes[i+2]+" "+tokes[i+3][0:6] == "DEFINE STRING AS STRING":
+        #    definitions[doGET(tokes[i+1])] = doGET(tokes[i+3])
+        #    i+=4
         elif tokes[i] + " "+tokes[i+1][0:6] + " " + tokes[i+2][0:3] == "INPUT STRING VAR":
             getINPUT(tokes[i+1][7:],tokes[i+2][4:])
             i+=3
@@ -425,6 +474,9 @@ def run_parser(tokes):
                 lInd = i
             inIf +=1
             i += 5
+        
+ except Exception as e:
+    print("File \""+str(argv[1])+"\", at token \""+str(tokes[i])+"\", "+str(e))
         
     #print (symbols)
 

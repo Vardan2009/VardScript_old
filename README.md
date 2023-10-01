@@ -83,6 +83,8 @@ else
 endif
 ```
 
+You can use "== (equal) " "> (greater than)" "< (lesser than)" "$= (not equal)"
+
 # While Loops
 Looping constructs allow you to repeat code blocks as long as a certain condition is met. In Vardscript, you can use the 'while' loop:
 
