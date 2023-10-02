@@ -6,7 +6,7 @@ ln_out "write 'exit' to exit the game"
 
 &counter = 0
 
-while &counter until 2 then
+while &counter == 0 then
 
 :generate random numbers
 
@@ -14,12 +14,14 @@ while &counter until 2 then
 &second = rand 1,10
 
 : type out the question
-out &first  
-out " +"
-out " "
-out &second
-out " "
-input "=" &answer
+
+parse &first t_str
+parse &second t_str
+
+out [&first+" + "+&second+" ="]
+input " " &answer
+parse &first t_num
+parse &second t_num
 
 if &answer == "exit" then :if the player typed exit
 	exit
@@ -34,10 +36,8 @@ if &answer == &realAnswer then :if answer is equal to the sum of the numbers, ty
 endif
 
 if &answer $= &realAnswer then :if not equal, type wrong and the correct answer
-	ln_out "Wrong!"
-	out "Answer:"
-	out " "
-	ln_out &realAnswer
+	parse &realAnswer t_str
+	ln_out ["Wrong!\nAnswer: "+&realAnswer]
+	parse &realAnswer t_num
 endif 
-&counter = 0 :resetting the counter every time to make an infinite loop
 endwhile

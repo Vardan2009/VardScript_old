@@ -251,11 +251,63 @@ def replace_random(match):
     y = int(match.group(2))
     return str(random.randint(x, y))
 
+def sqrt(match):
+    expression = match.group(1)
+    result = f"{evalExpr(expression)**0.5}"
+    return result
+
+def cos(match):
+    expression = match.group(1)
+    result = f"{math.cos(evalExpr(expression))}"
+    return result
+
+def sin(match):
+    expression = match.group(1)
+    result = f"{math.sin(evalExpr(expression))}"
+    return result
+
+def tan(match):
+    expression = match.group(1)
+    result = f"{math.tan(evalExpr(expression))}"
+    return result
+
+def roundd(match):
+    expression = match.group(1)
+    result = f"{round(evalExpr(expression))}"
+    return result
+
+def pow(match):
+    base = match.group(1)
+    exponent = match.group(2)
+    result = f"{evalExpr(base)**evalExpr(exponent)}"
+    return result
+
 def evalExpr(expr):
   expr = expr.replace("nrand",str(random.random()))
+  expr = expr.replace("const_pi",str(math.pi))
+  expr = expr.replace("const_e",str(math.e))
   expr = re.sub(r'rand (\d+),(\d+)',replace_random,expr)
+
+  while re.search(r'sqrt\(([^()]+)\)',expr):
+    expr = re.sub(r'sqrt\(([^()]+)\)',sqrt,expr)
+
+  while re.search(r'cos\(([^()]+)\)',expr):
+        expr = re.sub(r'cos\(([^()]+)\)',cos,expr)
+
+  while re.search(r'tan\(([^()]+)\)',expr):
+        expr = re.sub(r'tan\(([^()]+)\)',tan,expr)
+
+  while re.search(r'round\(([^()]+)\)',expr):
+        expr = re.sub(r'round\(([^()]+)\)',roundd,expr)
+
+  while re.search(r'sin\(([^()]+)\)',expr):
+        expr = re.sub(r'sin\(([^()]+)\)',sin,expr)
+  while re.search(r'pow\(([^()]+),\s*([^()]+)\)',expr):
+    expr = re.sub(r'pow\(([^()]+),\s*([^()]+)\)',pow,expr)
+
+
   for a in symbols:
-      expr = expr.replace(a,(getVARIABLE("VAR:"+str(a)))[4:])
+      expr = expr.replace(a,(getVARIABLE("VAR:"+str(a))).split(":")[1])
   return eval(expr)
 
 def doPRINT(toPRINT,end):
@@ -332,8 +384,11 @@ def handle_if_condition(tokes, i,end):
 
 #WHILE VAR UNTIL NUM THEN
 def handle_while_condition(tokes, i):
+
     if tokes[i+3].split(":")[0] == "NUM":
-        num = tokes[i+3].split(":")[1]
+        num = evalExpr(tokes[i+3].split(":")[1])
+    elif tokes[i+3].split(":")[0] == "EXPR":
+        num = evalExpr(tokes[i+3].split(":")[1])
     elif tokes[i+3].split(":")[0] == "VAR":
         num =getVARIABLE(tokes[i+3]).split(":")[1]
 
@@ -341,20 +396,35 @@ def handle_while_condition(tokes, i):
     num = int(num)
     var = int(var)
     #print(operand1+" "+operand2)
-    while int(var)< int(num):
-            var = getVARIABLE(tokes[i+1]).split(":")[1]
-            if tokes[i+3].split(":")[0] == "NUM":
-                num = tokes[i+3].split(":")[1]
-            elif tokes[i+3].split(":")[0] == "VAR":
+    if tokes[i+2] == "EQEQ":
+        while int(var)== int(num):
+            doWHILE(var,num,tokes,i)
+            var = int(getVARIABLE(tokes[i+1]).split(":")[1])
+    if tokes[i+2] == "GT":
+        while int(var)> int(num):
+            doWHILE(var,num,tokes,i)
+            var = int(getVARIABLE(tokes[i+1]).split(":")[1])
+    if tokes[i+2] == "LT":
+        while int(var)< int(num):
+            doWHILE(var,num,tokes,i)
+            var = int(getVARIABLE(tokes[i+1]).split(":")[1])
+
+def doWHILE(var,num,tokes,i):
+    var = getVARIABLE(tokes[i+1]).split(":")[1]
+    if tokes[i+3].split(":")[0] == "NUM":
+            num = evalExpr(tokes[i+3].split(":")[1])
+    elif tokes[i+3].split(":")[0] == "EXPR":
+                num = evalExpr(tokes[i+3].split(":")[1])
+    elif tokes[i+3].split(":")[0] == "VAR":
                 num =getVARIABLE(tokes[i+3]).split(":")[1]
-            num = int(num)
-            var = int(var)
-            var+=1
+    num = int(num)
+    var = int(var)
+            
             #print ("num =" + str(num))
             #print ("var =" + str(var))
-            symbols[tokes[i+1].split(":")[1]] = "NUM:"+str(var)
+            #symbols[tokes[i+1].split(":")[1]] = "NUM:"+str(var)
             #print("running thru "+ str(tokes[i+5:tokes.index("ENDWHILE", i+5)]))
-            run_parser(tokes[i+5:tokes.index("ENDWHILE", i+5)])
+    run_parser(tokes[i+5:tokes.index("ENDWHILE", i+5)])
 
 def run_parser(tokes):
  try:
@@ -476,7 +546,7 @@ def run_parser(tokes):
             i += 5
         
  except Exception as e:
-    print("File \""+str(argv[1])+"\", at token \""+str(tokes[i])+"\", "+str(e))
+     print("File \""+str(argv[1])+"\", at token \""+str(tokes[i])+"\", "+str(e))
         
     #print (symbols)
 

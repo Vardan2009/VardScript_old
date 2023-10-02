@@ -91,8 +91,9 @@ Looping constructs allow you to repeat code blocks as long as a certain conditio
 ```
 &counter = 0
 
-while &counter until 10 then
+while &counter < 10 then
     ln_out "This will print 10 Times!"
+	&counter = [&counter+1]
 endwhile
 ```
 
@@ -101,8 +102,9 @@ You can also initialize the loop variable and specify a different number of iter
 ```
 &counter = 5
 
-while &counter until 10 then
+while &counter < 10 then
     ln_out "Now, This will print 5 Times, because starting value is 5"
+	&counter = [&counter+1]
 endwhile
 ```
 
@@ -110,10 +112,7 @@ endwhile
 In Vardscript, you can ask input from the user and assign it to a variable
 ```
 input "What is your name?:" &name
-
-out "Hello,"
-out &name
-ln_out "!"
+ln_out ["Hello, "+&name+"!"]
 
 ```
 
@@ -182,16 +181,29 @@ In VardScript, rand x,y and nrand functions are used for generating random numbe
 ## 'nrand' statement
 The 'nrand' statement generates a number from 0 to 1
 ```
-&random = nrand
+&random = [nrand]
 ln_out &random
 ```
 
 ## 'rand' statement
 The 'rand' statement generates a number from a given range
 ```
-&random = rand 1,10
+&random = [rand 1,10]
 ln_out &random
 ```
 
+## Mathematical functions (sin,cos,tan,sqrt,round...)
+You Can use the following mathematical functions inside expressions (defined inside brackets [])
+```
+ln_out [sin(const_pi/2)] :outputs 1.0
+ln_out [round(sin(const_pi/2))] :outputs 1
+
+ln_out [sqrt(25)] :outputs 5.0
+ln_out [round(sqrt(25))] :outputs 5
+
+ln_out [pow(2,2)] :outputs 4
+
+
+```
 
 ### Created by Vardan2009
