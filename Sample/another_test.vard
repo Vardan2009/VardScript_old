@@ -1,0 +1,20 @@
+:VardScript example
+:Written in 02.10.2023
+
+input "Enter your name:" &name :get input from user
+input "Enter your age:" &age 
+parse &age t_num :parse age to a numeric variable
+
+if &age > 17 then :if age is 18 or higher
+	ln_out ["Hello, "+&name+". You are old enough to vote"]
+endif 
+if &age < 18 then : if age is less than 18
+	ln_out ["Hello, "+&name+". You are too young to vote"]
+endif 
+
+&result = [pow(5,2)] : 5 to the power of 2
+
+parse &result t_str : parse result to a string variable
+
+ln_out ["The square of 5 is: "+&result] :print out result
+
