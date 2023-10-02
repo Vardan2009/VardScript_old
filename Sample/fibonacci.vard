@@ -1,0 +1,22 @@
+&a = 0
+&b = 1
+
+input "Enter the number of Fibonacci numbers to generate:" &n
+
+parse &n t_num
+
+&i= 0
+&c = 0
+out ["Fibonacci Sequence:"+" "]
+
+while &i < &n then
+	
+	out &a
+	out [" "]
+	&c = [&a+&b]
+	
+	&a = &b
+	&b = &c
+	&i = [&i+1]
+	
+endwhile

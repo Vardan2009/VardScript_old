@@ -17,7 +17,7 @@ funcs = {}
 def open_file(filename):
 
     data = open(filename,"r").read()
-    data +="//EOF//"
+    data +="\n//EOF//"
     return data
 
 def run_lexer(filecontent):
@@ -305,10 +305,14 @@ def evalExpr(expr):
   while re.search(r'pow\(([^()]+),\s*([^()]+)\)',expr):
     expr = re.sub(r'pow\(([^()]+),\s*([^()]+)\)',pow,expr)
 
-
   for a in symbols:
-      expr = expr.replace(a,(getVARIABLE("VAR:"+str(a))).split(":")[1])
-  return eval(expr)
+      
+      e= getVARIABLE("VAR:"+str(a)).split(":",1)[1]
+      expr = expr.replace(a,e)
+      
+  result = eval(expr)
+  
+  return result
 
 def doPRINT(toPRINT,end):
     if toPRINT[0:6] == "STRING":

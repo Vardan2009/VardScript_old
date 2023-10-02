@@ -1,0 +1,17 @@
+input "Enter a number:" &num
+parse &num t_num
+
+&result = 1
+
+&times = 1
+
+&a = [&num+1]
+
+while &times < &a then
+	&result = [&result*&times]
+	&times = [&times+1]
+endwhile
+
+parse &num t_str
+parse &result t_str
+ln_out ["The factorial of "+&num+" is "+&result]

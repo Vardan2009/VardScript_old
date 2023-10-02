@@ -1,0 +1,14 @@
+:check if number is even or odd
+
+input "Enter number:" &num
+parse &num t_num
+
+&remainder = [&mnu % 2]
+
+if &remainder == 0 then
+	ln_out "number is even!"
+endif 
+
+if &remainder $= 0 then
+	ln_out "number is odd!"
+endif 
