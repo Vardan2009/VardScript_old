@@ -12,7 +12,7 @@ numstack =[]
 symbols = {}
 definitions = {}
 funcs = {}
-
+funcsreturns = {}
 
 def open_file(filename):
 
@@ -207,6 +207,9 @@ def run_lexer(filecontent):
         elif tok == "#import":
             toks.append("IMPORT")
             tok =""
+        elif tok == "ret":
+            toks.append("RETURN")
+            tok =""
         elif (tok == "0" or tok == "1" or tok == "2" or tok == "3" or tok == "4" or tok == "5" or tok == "6" or tok == "7" or tok == "8" or tok == "9" or tok == "nrand" or re.search(r'rand (\d+),(\d+)', tok)) and state == 0:
             expr += tok
             tok = ""
@@ -302,6 +305,7 @@ def evalExpr(expr):
 
   while re.search(r'sin\(([^()]+)\)',expr):
         expr = re.sub(r'sin\(([^()]+)\)',sin,expr)
+
   while re.search(r'pow\(([^()]+),\s*([^()]+)\)',expr):
     expr = re.sub(r'pow\(([^()]+),\s*([^()]+)\)',pow,expr)
 
@@ -309,8 +313,17 @@ def evalExpr(expr):
       
       e= getVARIABLE("VAR:"+str(a)).split(":",1)[1]
       expr = expr.replace(a,e)
-      
-  result = eval(expr)
+
+  for a in funcs:
+      run_parser(funcs[a],a)
+      #print(funcsreturns[a])
+      #print("replacing "+str(a)+" with "+str(funcsreturns[a]))
+      expr = expr.replace(a,funcsreturns[a])
+
+  if expr == "":
+        result = expr
+  else:
+      result = eval(expr)
   
   return result
 
@@ -362,14 +375,23 @@ def handle_if_condition(tokes, i,end):
     condition_type2, operand2 = tokes[i+3].split(":")
 
     if condition_type1 == "NUM":
-        operand1 = int(operand1)
+        operand1 = evalExpr(operand1)
     elif condition_type1 == "VAR":
         operand1 = getVARIABLE(tokes[i+1]).split(":")[1]
+    elif condition_type1 == "EXPR":
+        operand1 = evalExpr(operand1)
+    else:
+        operand2 = evalExpr(operand2)
 
+        
     if condition_type2 == "NUM":
-        operand2 = int(operand2)
+        operand2 = evalExpr(operand2)
     elif condition_type2 == "VAR":
         operand2 = getVARIABLE(tokes[i+3]).split(":")[1]
+    elif condition_type1 == "EXPR":
+        operand2 = evalExpr(operand2)
+    else:
+        operand2 = evalExpr(operand2)
 
     #print("Comparing "+str(operand1)+" and "+str(operand2))
     if tokes[i+2] == "EQEQ":
@@ -430,8 +452,8 @@ def doWHILE(var,num,tokes,i):
             #print("running thru "+ str(tokes[i+5:tokes.index("ENDWHILE", i+5)]))
     run_parser(tokes[i+5:tokes.index("ENDWHILE", i+5)])
 
-def run_parser(tokes):
- try:
+def run_parser(tokes,infunc = ""):
+ #try:
     inIf = 0
     lInd = 0
     inFunc = 0
@@ -463,8 +485,12 @@ def run_parser(tokes):
         elif inFunc==1:
             i+=1
         elif tokes[i][0:9] == "FUNC_NAME":
-            run_parser(funcs[tokes[i][10:]])
+            run_parser(funcs[tokes[i][10:]],tokes[i][10:])
             i+=1
+        elif tokes[i] + " " + tokes[i+1][0:6] == "RETURN STRING" or tokes[i] + " " + tokes[i+1][0:3] == "RETURN NUM" or tokes[i] + " " + tokes[i+1][0:4] == "RETURN EXPR"or tokes[i] + " " + tokes[i+1][0:3] == "RETURN VAR":
+            funcsreturns[infunc] = tokes[i+1].split(":",1)[1]
+            return
+            i+=2
         elif tokes[i] == "EXIT":
             exit()
             i+=1
@@ -503,6 +529,7 @@ def run_parser(tokes):
         elif tokes[i] + " "+tokes[i+1][0:9] == "FUNC FUNC_NAME":
                 inFunc = 1
                 funcs[tokes[i+1][10:]] = tokes[i+2:tokes.index("ENDFUNC",i)]
+                funcsreturns[tokes[i+1][10:]] = ""
                 i+=2
         elif tokes[i] == "PARSE" and tokes[i+2] == "TYPE_N":
             strn = getVARIABLE(tokes[i+1]) #STRING:"34"
@@ -549,8 +576,8 @@ def run_parser(tokes):
             inIf +=1
             i += 5
         
- except Exception as e:
-     print("File \""+str(argv[1])+"\", at token \""+str(tokes[i])+"\", "+str(e))
+ #except Exception as e:
+     #print("File \""+str(argv[1])+"\", at token \""+str(tokes[i])+"\", "+str(e))
         
     #print (symbols)
 

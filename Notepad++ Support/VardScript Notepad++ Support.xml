@@ -24,11 +24,11 @@
             <Keywords name="Folders in comment, open">func</Keywords>
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close">endfunc</Keywords>
-            <Keywords name="Keywords1">rand nrand typeof t_num t_str then as</Keywords>
+            <Keywords name="Keywords1">rand nrand typeof t_num t_str then as ret</Keywords>
             <Keywords name="Keywords2">const_pi const_e</Keywords>
             <Keywords name="Keywords3">out ln_out define pow sqrt cos sin round tan</Keywords>
             <Keywords name="Keywords4"></Keywords>
-            <Keywords name="Keywords5">until parse time os exit sleep #import</Keywords>
+            <Keywords name="Keywords5">until parse time os exit sleep #import input</Keywords>
             <Keywords name="Keywords6"></Keywords>
             <Keywords name="Keywords7">&amp;</Keywords>
             <Keywords name="Keywords8"></Keywords>

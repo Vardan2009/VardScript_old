@@ -62,6 +62,16 @@ endfunc
 my_function()
 ```
 
+## Returnable Functions
+```
+func myfunc()
+	ret 2
+endfunc
+
+ln_out [myfunc()+2]
+```
+Output: 4
+
 # Conditional Statements
 
 Vardscript supports conditional statements. The basic syntax for 'if' statements is as follows:
@@ -192,7 +202,7 @@ The 'rand' statement generates a number from a given range
 ln_out &random
 ```
 
-## Mathematical functions (sin,cos,tan,sqrt,round...)
+# Mathematical functions (sin,cos,tan,sqrt,round...)
 You Can use the following mathematical functions inside expressions (defined inside brackets [])
 ```
 ln_out [sin(const_pi/2)] :outputs 1.0
