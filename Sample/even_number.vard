@@ -3,7 +3,7 @@
 input "Enter number:" &num
 parse &num t_num
 
-&remainder = [&mnu % 2]
+&remainder = [&num % 2]
 
 if &remainder == 0 then
 	ln_out "number is even!"
